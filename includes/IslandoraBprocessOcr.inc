@@ -17,11 +17,21 @@ class IslandoraBprocessOcr extends IslandoraBackgroundProcess {
       return;
     }
 
+    // Check to make sure that the we only perform the work on images.
+    $perform_ocr = FALSE;
+    $object_content_models = $object->relationships->get('info:fedora/fedora-system:def/model#', 'hasModel');
+    foreach ($object_content_models as $cmodel) {
+      if (($cmodel['predicate']['value'] == 'hasModel') && ($cmodel['object']['value'] == 'islandora:sp_basic_image')) {
+        $perform_ocr = TRUE;
+      }
+    }
+
     // $rest_server_url = 'http://192.168.1.132/ocr_rest/page/';
     $rest_server_url = 'http://192.168.56.1/ocr_rest/page/';
-    if ($datastream->id == 'OBJ') {
+    if ($datastream->id == 'OBJ' && $perform_ocr) {
+      $pid_dsid_string = $object->id . "/" . $datastream->id;
       $time_pre = microtime(true);
-      dd("Starting remote process for datastream " . $object->id . "/" . $datastream->id);
+      dd("Starting remote process for datastream " . $pid_dsid_string);
       // Get datastream content and save it to a temp file.
       $mime_detect = new MimeDetect();
       $extension = $mime_detect->getExtension($datastream->mimetype);
@@ -58,13 +68,13 @@ class IslandoraBprocessOcr extends IslandoraBackgroundProcess {
       $delete_options = array('method' => 'DELETE', 'timeout' => 240);
       $delete_result = drupal_http_request($delete_url, $delete_options);
       dd($delete_result, "DELETE result");
-    }
 
-     // Log completion time.
-     $time_post = microtime(true);
-     $exec_time = $time_post - $time_pre;
-     dd("Finished remote process for datastream " . $object->pid . "/" . $datastream->id . 
-       ", which took " . $exec_time . " seconds to complete");
+      // Log completion time.
+      $time_post = microtime(true);
+      $exec_time = $time_post - $time_pre;
+      dd("Finished remote process for datastream " . $pid_dsid_string . ", which took " . 
+        $exec_time . " seconds to complete");
+    }
   }
 }
 ?>
