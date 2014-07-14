@@ -1,0 +1,17 @@
+<?php
+
+/**
+ * Islandora module that performs OCR as a background process.
+ *
+ * @todo: Add admin settings for to allow configuration of OCR REST server, timeout.
+ */
+
+// Instantiate the object that manages the background process so that
+// it can be invoked in one of the hooks in islandora_background_process.module.
+$IslandoraOcrBackgroundProcess = new IslandoraBprocessOcr();
+
+
+
+
+
+
