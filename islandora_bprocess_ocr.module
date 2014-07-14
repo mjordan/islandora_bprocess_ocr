@@ -10,6 +10,45 @@
 // it can be invoked in one of the hooks in islandora_background_process.module.
 $IslandoraOcrBackgroundProcess = new IslandoraBprocessOcr();
 
+/**
+ * Implements hook_menu().
+ */
+function islandora_bprocess_ocr_menu() {
+  $items = array();
+  $items['admin/islandora/tools/bprocessocr'] = array(
+    'title' => 'Islandora Background Process OCR Service',
+    'description' => 'Configure Islandora Background Process OCR Service.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('islandora_bprocess_ocr_admin_settings'),
+    'access arguments' => array('administer site configuration'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+  return $items;
+}
+
+/**
+ * Admin settings form builder.
+ */
+function islandora_bprocess_ocr_admin_settings() {
+  $form['islandora_bprocess_ocr_rest_server_url'] = array(
+    '#title' => t('URL and path to the RESTful OCR service'),
+    '#type' => 'textfield',
+    '#size' => 60,
+    '#default_value' => variable_get('islandora_bprocess_ocr_rest_server_url', 'http://example.com/ocr_rest/page/'),
+    '#required' => TRUE,
+  );
+  $form['islandora_bprocess_ocr_timeout'] = array(
+    '#title' => t('Maximum timeout'),
+    '#type' => 'textfield',
+    '#size' => 10,
+    '#default_value' => variable_get('islandora_bprocess_ocr_timeout', '240'),
+    '#required' => TRUE,
+  );
+  return system_settings_form($form);
+}
+
+
+
 
 
 

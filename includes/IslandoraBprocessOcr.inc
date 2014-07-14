@@ -17,6 +17,9 @@ class IslandoraBprocessOcr extends IslandoraBackgroundProcess {
       return;
     }
 
+    $rest_server_url = variable_get('islandora_bprocess_ocr_rest_server_url', 'http://example.com/ocr_rest/page/');
+    $timeout = variable_get('islandora_bprocess_ocr_timeout', '240');
+
     // Check to make sure that the we only perform the work on images.
     $perform_ocr = FALSE;
     $object_content_models = $object->relationships->get('info:fedora/fedora-system:def/model#', 'hasModel');
@@ -26,8 +29,6 @@ class IslandoraBprocessOcr extends IslandoraBackgroundProcess {
       }
     }
 
-    // $rest_server_url = 'http://192.168.1.132/ocr_rest/page/';
-    $rest_server_url = 'http://192.168.56.1/ocr_rest/page/';
     if ($datastream->id == 'OBJ' && $perform_ocr) {
       $pid_dsid_string = $object->id . "/" . $datastream->id;
       $time_pre = microtime(true);
@@ -52,7 +53,7 @@ class IslandoraBprocessOcr extends IslandoraBackgroundProcess {
 
       // Second request: curl -X GET -H 'Accept: text/plain' $rest_server_url . 'file.jpg' (text will be in response body)
       $text_transcript_url = $rest_server_url . $datastream_tmp_file_name;
-      $text_transcript_options = array('method' => 'GET', 'timeout' => 240, 'headers' => array('Accept' => 'text/plain'));
+      $text_transcript_options = array('method' => 'GET', 'timeout' => $timeout, 'headers' => array('Accept' => 'text/plain'));
       $text_transcript_result = drupal_http_request($text_transcript_url, $text_transcript_options);
 
       // Add the OCR datastream to the object
@@ -65,7 +66,7 @@ class IslandoraBprocessOcr extends IslandoraBackgroundProcess {
 
       // Third request: curl -X DELETE $rest_server_url . 'Hutchinson1794-1-0257.jpg'
       $delete_url = $rest_server_url . $datastream_tmp_file_name;
-      $delete_options = array('method' => 'DELETE', 'timeout' => 240);
+      $delete_options = array('method' => 'DELETE', 'timeout' => $timeout);
       $delete_result = drupal_http_request($delete_url, $delete_options);
       dd($delete_result, "DELETE result");
 

@@ -1,8 +1,9 @@
 name = Islandora OCR Background Process
-description = "A module that manages a process that performs OCR on a datastream."
+description = "A module that manages a background process that performs OCR."
 dependencies[] = devel
 dependencies[] = islandora_background_process
 package = Islandora Tools
+configure = admin/islandora/tools/bprocessocr
 version = 7.x-dev
 core = 7.x
 php = 5.3
