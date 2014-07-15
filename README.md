@@ -10,9 +10,9 @@ See https://github.com/Islandora/Islandora-Preservation-Interest-Group/tree/mast
 
 ## Installation
 
-Install and get the OCR REST server working, then install this module as usual, see [this](https://drupal.org/documentation/install/modules-themes/modules-7) for further information.
+Install and get the OCR REST server working, then install this module as usual; see [this](https://drupal.org/documentation/install/modules-themes/modules-7) for further information.
 
 ## Configuration
 
-Go to admin/islandora/tools/bprocessocr and add the URL of your OCR REST server.
+You will need to configure the URL of your ORC REST server at admin/islandora/tools/bprocessocr.
 
