@@ -14,5 +14,5 @@ Install and get the OCR REST server working, then install this module as usual; 
 
 ## Configuration
 
-You will need to configure the URL of your ORC REST server at admin/islandora/tools/bprocessocr.
+You will need to configure the URL of your OCR REST server at admin/islandora/tools/bprocessocr.
 
