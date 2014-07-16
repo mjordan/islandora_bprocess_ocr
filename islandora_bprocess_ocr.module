@@ -3,7 +3,9 @@
 /**
  * Islandora module that performs OCR as a background process.
  *
- * @todo: Add admin settings for to allow configuration of OCR REST server, timeout.
+ * @todo: Add admin settings to allow configuration of which
+ *   collections and content models to apply this service to,
+ *   and which input and output datastream IDs.
  */
 
 // Instantiate the object that manages the background process so that
@@ -31,10 +33,11 @@ function islandora_bprocess_ocr_menu() {
  */
 function islandora_bprocess_ocr_admin_settings() {
   $form['islandora_bprocess_ocr_rest_server_url'] = array(
-    '#title' => t('URL and path to the RESTful OCR service'),
+    '#title' => t('URL and path to the RESTful OCR server'),
     '#type' => 'textfield',
     '#size' => 60,
     '#default_value' => variable_get('islandora_bprocess_ocr_rest_server_url', 'http://example.com/ocr_rest/page/'),
+    '#description' => t('Include the "http://" and include the trailing "/" in the path.'),
     '#required' => TRUE,
   );
   $form['islandora_bprocess_ocr_timeout'] = array(
@@ -42,15 +45,9 @@ function islandora_bprocess_ocr_admin_settings() {
     '#type' => 'textfield',
     '#size' => 10,
     '#default_value' => variable_get('islandora_bprocess_ocr_timeout', '240'),
+    '#description' => t('Maximum number of seconds queries to the REST server can execute before timing out.'),
     '#required' => TRUE,
   );
   return system_settings_form($form);
 }
-
-
-
-
-
-
-
 
