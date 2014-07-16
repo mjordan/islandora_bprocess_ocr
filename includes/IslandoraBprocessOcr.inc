@@ -26,24 +26,22 @@ class IslandoraBprocessOcr extends IslandoraBackgroundProcess {
 
     // Check to make sure that the we only perform the work on images.
     $has_target_cmodel = FALSE;
-    $wanted_models = array('islandora:sp_basic_image');
+    $wanted_models = variable_get('islandora_bprocess_target_cmodels', array());
     $object_content_models = $object->relationships->get(FEDORA_MODEL_URI, 'hasModel');
-    dd($object_content_models, 'Content models');
     foreach ($object_content_models as $cmodel) {
       if (($cmodel['predicate']['value'] == 'hasModel') &&
-        in_array($cmodel['object']['value'], $wanted_models)) {
+        array_key_exists($cmodel['object']['value'], $wanted_models)) {
         $has_target_cmodel = TRUE;
       }
     }
 
     // Check to make sure that the we only perform the work on members of a specific collection.
     $in_target_collection = FALSE;
-    $wanted_collections = array('islandora:sp_basic_image_collection');
+    $wanted_collections = variable_get('islandora_bprocess_target_collections', array());
     $object_collections = $object->relationships->get(FEDORA_RELS_EXT_URI, 'isMemberOfCollection');
-    dd($object_collections, 'Collections');
     foreach ($object_collections as $collection) {
       if (($collection['predicate']['value'] == 'isMemberOfCollection') &&
-        in_array($collection['object']['value'], $wanted_collections)) {
+        array_key_exists($collection['object']['value'], $wanted_collections)) {
         $in_target_collection = TRUE;
       }
     }
