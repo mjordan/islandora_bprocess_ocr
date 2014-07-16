@@ -1,9 +1,13 @@
 <?php
 
-class IslandoraBprocessOcr extends IslandoraBackgroundProcess {
+/**
+ * @file
+ * Class that integrates external OCR service with Islandora Background Process module.
+ */
 
-  // This value should be the same as the function which implements the hook
-  // that this process should be executed in.
+class IslandoraBprocessOcr extends IslandoraBackgroundProcess {
+  // The value of this property should be the same as the function which implements
+  // the hook that this process should be executed in.
   public $hook = 'islandora_background_process_islandora_datastream_ingested';
 
   public function __construct() {
@@ -21,15 +25,30 @@ class IslandoraBprocessOcr extends IslandoraBackgroundProcess {
     $timeout = variable_get('islandora_bprocess_ocr_timeout', '240');
 
     // Check to make sure that the we only perform the work on images.
-    $perform_ocr = FALSE;
-    $object_content_models = $object->relationships->get('info:fedora/fedora-system:def/model#', 'hasModel');
+    $has_target_cmodel = FALSE;
+    $wanted_models = array('islandora:sp_basic_image');
+    $object_content_models = $object->relationships->get(FEDORA_MODEL_URI, 'hasModel');
+    dd($object_content_models, 'Content models');
     foreach ($object_content_models as $cmodel) {
-      if (($cmodel['predicate']['value'] == 'hasModel') && ($cmodel['object']['value'] == 'islandora:sp_basic_image')) {
-        $perform_ocr = TRUE;
+      if (($cmodel['predicate']['value'] == 'hasModel') &&
+        in_array($cmodel['object']['value'], $wanted_models)) {
+        $has_target_cmodel = TRUE;
       }
     }
 
-    if ($datastream->id == 'OBJ' && $perform_ocr) {
+    // Check to make sure that the we only perform the work on members of a specific collection.
+    $in_target_collection = FALSE;
+    $wanted_collections = array('islandora:sp_basic_image_collection');
+    $object_collections = $object->relationships->get(FEDORA_RELS_EXT_URI, 'isMemberOfCollection');
+    dd($object_collections, 'Collections');
+    foreach ($object_collections as $collection) {
+      if (($collection['predicate']['value'] == 'isMemberOfCollection') &&
+        in_array($collection['object']['value'], $wanted_collections)) {
+        $in_target_collection = TRUE;
+      }
+    }
+
+    if ($datastream->id == 'OBJ' && $has_target_cmodel && $in_target_collection) {
       $pid_dsid_string = $object->id . "/" . $datastream->id;
       $time_pre = microtime(true);
       dd("Starting remote process for datastream " . $pid_dsid_string);
@@ -78,4 +97,3 @@ class IslandoraBprocessOcr extends IslandoraBackgroundProcess {
     }
   }
 }
-?>

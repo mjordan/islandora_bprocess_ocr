@@ -1,6 +1,11 @@
 <?php
 
 /**
+ * @file
+ * Module that integrates external OCR service with Islandora Background Process module.
+ */
+
+/**
  * Islandora module that performs OCR as a background process.
  *
  * @todo: Add admin settings to allow configuration of which
