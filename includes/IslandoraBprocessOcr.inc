@@ -20,9 +20,15 @@ class IslandoraBprocessOcr extends IslandoraBackgroundProcess {
   // code in their work() method. 
   public function work($islandora_object = NULL, $datastream = NULL) {
     $this->numAttempts++;
-    if (is_null($datastream) || ($this->numAttempts > variable_get('islandora_bprocess_ocr_max_attempts', '3'))) {
-      return;
+    if (is_null($datastream)) {
+      return FALSE;
     }
+    if ($this->numAttempts > (int) variable_get('islandora_bprocess_ocr_max_attempts', '3')) {
+      return FALSE;
+    }
+
+    // We copy $islandora_object to use when we retry work() on error.
+    $islandora_object_copy = clone $islandora_object;
 
     $rest_server_url = variable_get('islandora_bprocess_ocr_rest_server_url', 'http://example.com/ocr_rest/page/');
     $timeout = variable_get('islandora_bprocess_ocr_timeout', '240');
@@ -69,17 +75,17 @@ class IslandoraBprocessOcr extends IslandoraBackgroundProcess {
       if (!$put_result || $put_result['http_code'] != '201') {
         islandora_background_process_log("PUT failed on attempt %attempt for %item",
           array('%attempt' => $this->numAttempts, '%item' => $pid_dsid_string));
-        $this->work($islandora_object, $datastream);
+        $this->work($islandora_object_copy, $datastream);
       }
 
       // Second request: curl -X GET -H 'Accept: text/plain' $rest_server_url . 'file.jpg' (text will be in response body)
       $text_transcript_url = $rest_server_url . $datastream_tmp_file_name;
       $text_transcript_options = array('method' => 'GET', 'timeout' => $timeout, 'headers' => array('Accept' => 'text/plain'));
       $text_transcript_result = drupal_http_request($text_transcript_url, $text_transcript_options);
-      if (!$text_transcript_result || $text_transcript_result['code'] != '200') {
+      if (!$text_transcript_result || $text_transcript_result->code != '200') {
         islandora_background_process_log("GET for plain text failed on attempt %attempt for %item",
           array('%attempt' => $this->numAttempts, '%item' => $pid_dsid_string));
-        $this->work($islandora_object, $datastream);
+        $this->work($islandora_object_copy, $datastream);
       }
 
       // Add the OCR datastream to the object.
@@ -88,16 +94,22 @@ class IslandoraBprocessOcr extends IslandoraBackgroundProcess {
       $ocr_ds->label = 'Transcript';
       $ocr_ds->mimeType = 'text/plain';
       $ocr_ds->setContentFromString($text_transcript_result->data);
-      $islandora_object->ingestDatastream($ocr_ds);
+      try {
+        $islandora_object->ingestDatastream($ocr_ds);
+      }
+      catch (Exception $e) {
+        islandora_background_process_log("Failed to add OCR datastream for %item: %error",
+          array('%item' => $pid_dsid_string, '%error' => $e->getMessage()));
+      }
 
       // Third request: curl -X DELETE $rest_server_url . 'Hutchinson1794-1-0257.jpg'
       $delete_url = $rest_server_url . $datastream_tmp_file_name;
       $delete_options = array('method' => 'DELETE', 'timeout' => $timeout);
       $delete_result = drupal_http_request($delete_url, $delete_options);
-      if (!$delete_result || $delete_result['code'] != '200') {
+      if (!$delete_result || $delete_result->code != '200') {
         islandora_background_process_log("DELETE failed on attempt %attempt for %item",
           array('%attempt' => $this->numAttempts, '%item' => $pid_dsid_string));
-        $this->work($islandora_object, $datastream);
+        $this->work($islandora_object_copy, $datastream);
       }
 
       // Log completion time.
