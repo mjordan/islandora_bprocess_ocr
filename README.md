@@ -14,5 +14,9 @@ Install and get the OCR REST server working, then install this module as usual; 
 
 ## Configuration
 
-You will need to configure the URL of your OCR REST server at admin/islandora/tools/bprocessocr.
+Configure the URL of your OCR REST server, and some additional options, at admin/islandora/tools/bprocessocr.
+
+##  Logging
+
+Errors arising from interaction with the OCR server are logged in the Drupal watchdog, as asre the start and completion of adding the OCR datastream to an object.
 
