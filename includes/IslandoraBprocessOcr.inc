@@ -34,7 +34,7 @@ class IslandoraBprocessOcr extends IslandoraBackgroundProcess {
     // Check to make sure that the we only perform the work on object that have the
     // configured content models.
     $has_target_cmodel = FALSE;
-    $wanted_models = variable_get('islandora_bprocess_target_cmodels', array());
+    $wanted_models = variable_get('islandora_bprocess__ocr_target_cmodels', array());
     $object_content_models = $islandora_object->relationships->get(FEDORA_MODEL_URI, 'hasModel');
     foreach ($object_content_models as $cmodel) {
       if (($cmodel['predicate']['value'] == 'hasModel') &&
@@ -46,7 +46,7 @@ class IslandoraBprocessOcr extends IslandoraBackgroundProcess {
     // Check to make sure that the we only perform the work on members of the configured
     // collections.
     $in_target_collection = FALSE;
-    $wanted_collections = variable_get('islandora_bprocess_target_collections', array());
+    $wanted_collections = variable_get('islandora_bprocess_ocr_target_collections', array());
     $object_collections = $islandora_object->relationships->get(FEDORA_RELS_EXT_URI, 'isMemberOfCollection');
     foreach ($object_collections as $collection) {
       if (($collection['predicate']['value'] == 'isMemberOfCollection') &&

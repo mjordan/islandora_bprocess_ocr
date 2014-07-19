@@ -33,21 +33,21 @@ function islandora_bprocess_ocr_admin_settings() {
     '#description' => t('Maximum number of attempts to query the REST server before the service stops trying.'),
     '#required' => TRUE,
   );
-  $form['islandora_bprocess_target_cmodels'] = array(
+  $form['islandora_bprocess_ocr_target_cmodels'] = array(
     '#title' => t('Target content models'),
     '#type' => 'select',
     '#multiple' => TRUE,
     '#options' => islandora_background_process_get_collections_cmodels('info:fedora/fedora-system:ContentModel-3.0'),
-    '#default_value' => variable_get('islandora_bprocess_target_cmodels', array()),
+    '#default_value' => variable_get('islandora_bprocess_ocr_target_cmodels', array()),
     '#description' => t('Apply this service to objects with any of these content models.'),
     '#required' => TRUE,
   );
-  $form['islandora_bprocess_target_collections'] = array(
+  $form['islandora_bprocess_ocr_target_collections'] = array(
     '#title' => t('Target collections'),
     '#type' => 'select',
     '#multiple' => TRUE,
     '#options' => islandora_background_process_get_collections_cmodels('info:fedora/islandora:collectionCModel'),
-    '#default_value' => variable_get('islandora_bprocess_target_collections', array()),
+    '#default_value' => variable_get('islandora_bprocess_ocr_target_collections', array()),
     '#description' => t('Apply this service to objects in any of these collections.'),
     '#required' => TRUE,
   );
