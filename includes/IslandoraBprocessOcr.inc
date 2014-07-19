@@ -52,7 +52,8 @@ class IslandoraBprocessOcr extends IslandoraBackgroundProcess {
     if ($datastream->id == 'OBJ' && $has_target_cmodel && $in_target_collection) {
       $pid_dsid_string = $object->id . "/" . $datastream->id;
       $time_pre = microtime(true);
-      dd("Starting remote process for datastream " . $pid_dsid_string);
+      islandora_background_process_log("Starting remote process for datastream %item",
+        array('%item' => $pid_dsid_string), WATCHDOG_INFO);
       // Get datastream content and save it to a temp file.
       $mime_detect = new MimeDetect();
       $extension = $mime_detect->getExtension($datastream->mimetype);
@@ -66,6 +67,8 @@ class IslandoraBprocessOcr extends IslandoraBackgroundProcess {
       $put_url = $rest_server_url . $datastream_tmp_file_name;
       $put_result = islandora_background_process_put_binary_file($put_url, $datastream_tmp_file_path);
       if (!$put_result || $put_result['http_code'] != '201') {
+        islandora_background_process_log("PUT failed on attempt %attempt for %item",
+          array('%attempt' => $this->numAttempts, '%item' => $pid_dsid_string));
         $this->work($object, $datastream);
       }
 
@@ -74,6 +77,8 @@ class IslandoraBprocessOcr extends IslandoraBackgroundProcess {
       $text_transcript_options = array('method' => 'GET', 'timeout' => $timeout, 'headers' => array('Accept' => 'text/plain'));
       $text_transcript_result = drupal_http_request($text_transcript_url, $text_transcript_options);
       if (!$text_transcript_result || $text_transcript_result['code'] != '200') {
+        islandora_background_process_log("GET for plain text failed on attempt %attempt for %item",
+          array('%attempt' => $this->numAttempts, '%item' => $pid_dsid_string));
         $this->work($object, $datastream);
       }
 
@@ -90,14 +95,16 @@ class IslandoraBprocessOcr extends IslandoraBackgroundProcess {
       $delete_options = array('method' => 'DELETE', 'timeout' => $timeout);
       $delete_result = drupal_http_request($delete_url, $delete_options);
       if (!$delete_result || $delete_result['code'] != '200') {
+        islandora_background_process_log("DELETE failed on attempt %attempt for %item",
+          array('%attempt' => $this->numAttempts, '%item' => $pid_dsid_string));
         $this->work($object, $datastream);
       }
 
       // Log completion time.
       $time_post = microtime(true);
       $exec_time = $time_post - $time_pre;
-      dd("Finished remote process for datastream " . $pid_dsid_string . ", which took " . 
-        $exec_time . " seconds to complete");
+      islandora_background_process_log("Finished remote process for datastream %item, which took %seconds seconds to complete",
+        array('%item' => $pid_dsid_string, '%seconds' => $exec_time), WATCHDOG_INFO);
     }
   }
 }

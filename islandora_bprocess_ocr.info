@@ -1,6 +1,5 @@
 name = Islandora OCR Background Process
 description = "A module that manages a background process that performs OCR."
-dependencies[] = devel
 dependencies[] = islandora_background_process
 package = Islandora Tools
 configure = admin/islandora/tools/bprocessocr
