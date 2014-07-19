@@ -64,7 +64,7 @@ class IslandoraBprocessOcr extends IslandoraBackgroundProcess {
 
       // First request: curl -X PUT --data-binary @1978-03-29-07.tif $rest_server_url . '1978-03-29-07.tif'
       $put_url = $rest_server_url . $datastream_tmp_file_name;
-      $put_result = islandora_background_proces_put_binary_file($put_url, $datastream_tmp_file_path);
+      $put_result = islandora_background_process_put_binary_file($put_url, $datastream_tmp_file_path);
       if (!$put_result || $put_result['http_code'] != '201') {
         $this->work($object, $datastream);
       }
