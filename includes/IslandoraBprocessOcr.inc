@@ -82,13 +82,13 @@ class IslandoraBprocessOcr extends IslandoraBackgroundProcess {
         $this->work($object, $datastream);
       }
 
-      // Add the OCR datastream to the object
+      // Add the OCR datastream to the object.
       $dsid = 'OCR';
-      $datastream = isset($object[$dsid]) ? $object[$dsid] : $object->constructDatastream($dsid);
-      $datastream->label = 'Transcript';
-      $datastream->mimeType = 'text/plain';
-      $datastream->setContentFromString($text_transcript_result->data);
-      $object->ingestDatastream($datastream);
+      $ocr_ds = isset($object[$dsid]) ? $object[$dsid] : $object->constructDatastream($dsid);
+      $ocr_ds->label = 'Transcript';
+      $ocr_ds->mimeType = 'text/plain';
+      $ocr_ds->setContentFromString($text_transcript_result->data);
+      $object->ingestDatastream($ocr_ds);
 
       // Third request: curl -X DELETE $rest_server_url . 'Hutchinson1794-1-0257.jpg'
       $delete_url = $rest_server_url . $datastream_tmp_file_name;
