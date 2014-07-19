@@ -25,6 +25,14 @@ function islandora_bprocess_ocr_admin_settings() {
     '#description' => t('Maximum number of seconds queries to the REST server can execute before timing out.'),
     '#required' => TRUE,
   );
+  $form['islandora_bprocess_ocr_max_attempts'] = array(
+    '#title' => t('Maximum attempts'),
+    '#type' => 'textfield',
+    '#size' => 10,
+    '#default_value' => variable_get('islandora_bprocess_ocr_max_attempts', '3'),
+    '#description' => t('Maximum number of attempts to query the REST server before the service stops trying.'),
+    '#required' => TRUE,
+  );
   $form['islandora_bprocess_target_cmodels'] = array(
     '#title' => t('Target content models'),
     '#type' => 'select',

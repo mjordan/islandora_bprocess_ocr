@@ -10,6 +10,8 @@ class IslandoraBprocessOcr extends IslandoraBackgroundProcess {
   // the hook that this process should be executed in.
   public $hook = 'islandora_background_process_islandora_datastream_ingested';
 
+  static $numAttempts = 0;
+
   public function __construct() {
     parent::__construct();
   }
@@ -17,7 +19,8 @@ class IslandoraBprocessOcr extends IslandoraBackgroundProcess {
   // All classes that extend IslandoraBackgroundProcess run their
   // code in their work() method. 
   public function work($object = NULL, $datastream = NULL) {
-    if (is_null($datastream)) {
+    $this->numAttempts++;
+    if (is_null($datastream) || ($this->numAttempts > variable_get('islandora_bprocess_ocr_max_attempts', '3'))) {
       return;
     }
 
@@ -61,17 +64,18 @@ class IslandoraBprocessOcr extends IslandoraBackgroundProcess {
 
       // First request: curl -X PUT --data-binary @1978-03-29-07.tif $rest_server_url . '1978-03-29-07.tif'
       $put_url = $rest_server_url . $datastream_tmp_file_name;
-      if ($put_result = islandora_background_proces_put_binary_file($put_url, $datastream_tmp_file_path)) {
-        dd($put_result, 'PUT result');
-      }
-      else {
-        dd('PUT failed.');
+      $put_result = islandora_background_proces_put_binary_file($put_url, $datastream_tmp_file_path);
+      if (!$put_result || $put_result['http_code'] != '201') {
+        $this->work($object, $datastream);
       }
 
       // Second request: curl -X GET -H 'Accept: text/plain' $rest_server_url . 'file.jpg' (text will be in response body)
       $text_transcript_url = $rest_server_url . $datastream_tmp_file_name;
       $text_transcript_options = array('method' => 'GET', 'timeout' => $timeout, 'headers' => array('Accept' => 'text/plain'));
       $text_transcript_result = drupal_http_request($text_transcript_url, $text_transcript_options);
+      if (!$text_transcript_result || $text_transcript_result['code'] != '200') {
+        $this->work($object, $datastream);
+      }
 
       // Add the OCR datastream to the object
       $dsid = 'OCR';
@@ -85,7 +89,9 @@ class IslandoraBprocessOcr extends IslandoraBackgroundProcess {
       $delete_url = $rest_server_url . $datastream_tmp_file_name;
       $delete_options = array('method' => 'DELETE', 'timeout' => $timeout);
       $delete_result = drupal_http_request($delete_url, $delete_options);
-      dd($delete_result, "DELETE result");
+      if (!$delete_result || $delete_result['code'] != '200') {
+        $this->work($object, $datastream);
+      }
 
       // Log completion time.
       $time_post = microtime(true);
