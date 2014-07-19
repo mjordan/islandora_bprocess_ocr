@@ -18,5 +18,5 @@ Configure the URL of your OCR REST server, and some additional options, at admin
 
 ##  Logging
 
-Errors arising from interaction with the OCR server are logged in the Drupal watchdog, as asre the start and completion of adding the OCR datastream to an object.
+Errors arising from interaction with the OCR server are logged in the Drupal watchdog, as are the start and completion of adding the OCR datastream to an object.
 
