@@ -6,9 +6,12 @@
  */
 
 class IslandoraBprocessOcr extends IslandoraBackgroundProcess {
-  // The value of the $hook property should be the same as the function name which
-  // implements the hook that this process should be executed in.
-  public $hook = 'islandora_background_process_islandora_datastream_ingested';
+  // $hooks should include the names of the islandora_background_process functions
+  // which implement the hooks that this process should be executed in.
+  public $hooks = array(
+    'islandora_background_process_islandora_datastream_ingested',
+    'islandora_background_process_islandora_datastream_modified',
+  );
 
   // Counter for number of attempts to perform the work() method before giving up.
   static $numAttempts = 0;
@@ -34,7 +37,7 @@ class IslandoraBprocessOcr extends IslandoraBackgroundProcess {
     // Check to make sure that the we only perform the work on object that have the
     // configured content models.
     $has_target_cmodel = FALSE;
-    $wanted_models = variable_get('islandora_bprocess__ocr_target_cmodels', array());
+    $wanted_models = variable_get('islandora_bprocess_ocr_target_cmodels', array());
     $object_content_models = $islandora_object->relationships->get(FEDORA_MODEL_URI, 'hasModel');
     foreach ($object_content_models as $cmodel) {
       if (($cmodel['predicate']['value'] == 'hasModel') &&
