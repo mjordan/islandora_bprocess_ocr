@@ -25,6 +25,15 @@ function islandora_bprocess_ocr_admin_settings() {
     '#description' => t('Maximum number of seconds queries to the REST server can execute before timing out.'),
     '#required' => TRUE,
   );
+  $form['islandora_bprocess_ocr_additional_time_limit'] = array(
+    '#title' => t('Additional time limit'),
+    '#type' => 'textfield',
+    '#size' => 10,
+    '#default_value' => variable_get('islandora_bprocess_ocr_additional_time_limit', '240'),
+    '#description' => t('Number of seconds to pass to <a href="@drupal_set_time_limit">drupal_set_time_limit</a>.
+      Leave blank to not add additional time.', array("@drupal_set_time_limit" =>
+      'https://api.drupal.org/api/drupal/includes%21common.inc/function/drupal_set_time_limit/7')),
+  );
   $form['islandora_bprocess_ocr_max_attempts'] = array(
     '#title' => t('Maximum attempts'),
     '#type' => 'textfield',

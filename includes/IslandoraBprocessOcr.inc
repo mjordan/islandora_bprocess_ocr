@@ -27,6 +27,12 @@ class IslandoraBprocessOcr extends IslandoraBackgroundProcess {
   public function work($islandora_object = NULL, $datastream = NULL) {
     $pid_dsid_string = $islandora_object->id . "/" . $datastream->id;
 
+    // Add additional execution time if configured in admin settings. We only want to add it once.
+    $additional_time_limit = variable_get('islandora_bprocess_ocr_additional_time_limit', '30');
+    if ($this->numAttempts == 0 && is_numeric($additional_time_limit)) {
+      drupal_set_time_limit($additional_time_limit);
+    }
+
     if (is_null($datastream)) {
       // Since this method is running in its own process, just log and exit.
       islandora_background_process_log("Invalide datastream passed into work() method while
